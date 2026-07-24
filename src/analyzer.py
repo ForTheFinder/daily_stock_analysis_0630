@@ -3493,6 +3493,186 @@ class GeminiAnalyzer:
                 report_language=report_language,
                 analysis_context_pack_summary=analysis_context_pack_summary,
             )
+
+            # ---- 结构化打印发送给 LLM 的完整输入数据 ----
+            try:
+                _字段映射 = {
+                    # 通用 / 行情
+                    "date": "日期",
+                    "open": "开盘价",
+                    "high": "最高价",
+                    "low": "最低价",
+                    "close": "收盘价",
+                    "volume": "成交量",
+                    "amount": "成交额",
+                    "pct_chg": "涨跌幅",
+                    "code": "股票代码",
+                    "name": "股票名称",
+                    "stock_name": "股票名称",
+                    "stock_code": "股票代码",
+                    "source": "数据来源",
+                    # 实时行情增强
+                    "price": "当前价格",
+                    "volume_ratio": "量比",
+                    "turnover_rate": "换手率",
+                    "pe_ratio": "市盈率（动态）",
+                    "pb_ratio": "市净率",
+                    "total_mv": "总市值",
+                    "circ_mv": "流通市值",
+                    "change_60d": "60日涨跌幅",
+                    "change_amount": "涨跌额",
+                    "change_pct": "涨跌幅",
+                    "open_price": "开盘价",
+                    "pre_close": "昨收价",
+                    "update_time": "更新时间",
+                    "trade_date": "交易日期",
+                    "data_source": "数据来源",
+                    # 均线 / 趋势
+                    "trend_status": "趋势状态",
+                    "ma_alignment": "均线排列",
+                    "trend_strength": "趋势强度",
+                    "ma5": "5日均线",
+                    "ma10": "10日均线",
+                    "ma20": "20日均线",
+                    "ma60": "60日均线",
+                    "current_price": "当前价格",
+                    "bias_ma5": "偏离5日均线",
+                    "bias_ma10": "偏离10日均线",
+                    "bias_ma20": "偏离20日均线",
+                    "volume_status": "量能状态",
+                    "volume_ratio_5d": "5日量比",
+                    "volume_trend": "量能趋势",
+                    "support_ma5": "5日均线支撑",
+                    "support_ma10": "10日均线支撑",
+                    "support_level": "支撑位",
+                    "resistance_level": "压力位",
+                    # MACD
+                    "macd_dif": "MACD快线（DIF）",
+                    "macd_dea": "MACD慢线（DEA）",
+                    "macd_bar": "MACD柱状图",
+                    "macd_status": "MACD状态",
+                    "macd_signal": "MACD信号",
+                    # RSI
+                    "rsi_6": "RSI(6)短期",
+                    "rsi_12": "RSI(12)中期",
+                    "rsi_24": "RSI(24)长期",
+                    "rsi_status": "RSI状态",
+                    "rsi_signal": "RSI信号",
+                    # 信号
+                    "buy_signal": "买入信号",
+                    "signal_score": "综合评分",
+                    "signal_reasons": "支撑因素",
+                    "risk_factors": "风险因素",
+                    "is_bullish": "是否看多",
+                    "trend_score": "趋势评分",
+                    # 筹码
+                    "profit_ratio": "获利比例",
+                    "avg_cost": "平均成本",
+                    "concentration": "集中度",
+                    "chip_health": "筹码健康度",
+                    # 基本面
+                    "growth": "成长性指标",
+                    "earnings": "业绩数据",
+                    "institution": "机构持仓",
+                    "source_chain": "数据来源链",
+                    "status": "状态",
+                    "revenue_yoy": "营收同比增长",
+                    "net_profit_yoy": "净利润同比增长",
+                    "roe": "净资产收益率（ROE）",
+                    "gross_margin": "毛利率",
+                    "financial_report": "财报数据",
+                    "report_date": "报告期",
+                    "revenue": "营业总收入",
+                    "net_profit_parent": "归母净利润",
+                    "operating_cash_flow": "经营现金流",
+                    "forecast_summary": "业绩预告摘要",
+                    "quick_report_summary": "业绩快报摘要",
+                    "dividend": "分红详情",
+                    "per_share": "每股派息",
+                    "ex_dividend_date": "除权除息日",
+                    "record_date": "股权登记日",
+                    "announce_date": "公告日期",
+                    "plan_text": "分配方案",
+                    "institution_holding_change": "机构持仓变动",
+                    "top10_holder_change": "前十大股东变动",
+                    # 资金面
+                    "stock_flow": "个股资金流向",
+                    "sector_rankings": "板块资金排名",
+                    "main_net_inflow": "主力净流入",
+                    "inflow_5d": "5日净流入",
+                    "inflow_10d": "10日净流入",
+                    "top": "净流入前5板块",
+                    "bottom": "净流出前5板块",
+                    "net_inflow": "净流入金额",
+                    "is_on_list": "是否上龙虎榜",
+                    "recent_count": "近期上榜次数",
+                    "latest_date": "最近上榜日期",
+                    # 市场阶段
+                    "phase": "市场阶段",
+                    "market": "所属市场",
+                    "label": "阶段标签",
+                    "is_trading": "是否交易中",
+                    "effective_daily_bar_date": "有效行情日期",
+                    "is_partial_bar": "是否盘中快照",
+                    # 大盘结构
+                    "primary_theme": "主线题材",
+                    "stock_position": "个股板块定位",
+                    "board_names": "所属板块",
+                    "is_theme_leader": "是否题材龙头",
+                    "theme_phase": "题材阶段",
+                }
+
+                def _翻译键名(数据, _映射=_字段映射):
+                    if isinstance(数据, dict):
+                        return {(_映射.get(k, k) if isinstance(k, str) else k): _翻译键名(v, _映射) for k, v in 数据.items()}
+                    if isinstance(数据, list):
+                        return [_翻译键名(item, _映射) for item in 数据]
+                    return 数据
+
+                def _获取或提示(数据源, 键名):
+                    if not isinstance(数据源, dict):
+                        return "未成功获取到"
+                    值 = 数据源.get(键名)
+                    return _翻译键名(值) if 值 is not None else "未成功获取到"
+
+                _fundamental = context.get("fundamental_context") if isinstance(context.get("fundamental_context"), dict) else {}
+                _capital_flow_raw = _fundamental.get("capital_flow") if isinstance(_fundamental.get("capital_flow"), dict) else None
+
+                _输入快照 = {
+                    "股票代码": code,
+                    "股票名称": name,
+                    "分析日期": context.get("date"),
+                    "今日行情": _翻译键名(context.get("today")) if context.get("today") else "未成功获取到",
+                    "昨日行情": _翻译键名(context.get("yesterday")) if context.get("yesterday") else "未成功获取到",
+                    "实时行情增强数据": _翻译键名(context.get("realtime")) if context.get("realtime") else "未成功获取到",
+                    "均线形态": context.get("ma_status") or "未成功获取到",
+                    "趋势分析结果": _翻译键名(context.get("trend_analysis")) if context.get("trend_analysis") else "未成功获取到",
+                    "筹码分布数据": _翻译键名(context.get("chip")) if context.get("chip") else "未成功获取到",
+                    "基本面数据": {
+                        "成长性指标": _获取或提示(_fundamental, "growth"),
+                        "业绩数据": _获取或提示(_fundamental, "earnings"),
+                        "机构持仓": _获取或提示(_fundamental, "institution"),
+                        "数据来源链": _获取或提示(_fundamental, "source_chain"),
+                    },
+                    "资金面数据": _翻译键名(_capital_flow_raw) if _capital_flow_raw else "未成功获取到",
+                    "市场阶段上下文": _翻译键名(context.get("market_phase_context")) if context.get("market_phase_context") else "未成功获取到",
+                    "大盘结构与热点": _翻译键名(context.get("market_structure_context")) if context.get("market_structure_context") else "未成功获取到",
+                    "当日大盘环境": _翻译键名(context.get("daily_market_context")) if context.get("daily_market_context") else "未成功获取到",
+                    "持仓组合上下文": _翻译键名(context.get("portfolio_context")) if context.get("portfolio_context") else "未成功获取到",
+                    "舆情情报（新闻）": news_context or "未成功获取到",
+                    "数据包摘要": analysis_context_pack_summary or "未生成",
+                    "最终提示词长度（字符数）": len(prompt),
+                }
+                logger.info(
+                    "[LLM 输入数据快照] %s(%s):\n%s",
+                    name,
+                    code,
+                    json.dumps(_输入快照, ensure_ascii=False, default=str, indent=2),
+                )
+            except Exception as _snap_err:
+                logger.debug("[LLM 输入数据快照] 序列化失败: %s", _snap_err)
+            # ---- 新增结束 ----
+
             legacy_audit_context = {
                 "language": report_language,
                 "market_group": _legacy_market_group(code),
