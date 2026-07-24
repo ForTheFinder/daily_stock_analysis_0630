@@ -3620,6 +3620,40 @@ class GeminiAnalyzer:
                     "board_names": "所属板块",
                     "is_theme_leader": "是否题材龙头",
                     "theme_phase": "题材阶段",
+                    # 实时行情内部字段
+                    "realtime_source": "实时数据来源",
+                    "is_estimated": "是否估算数据",
+                    "estimated_fields": "估算字段列表",
+                    "fetched_at": "抓取时间",
+                    "volume_ratio_desc": "量比描述",
+                    # 数据提供者统计结构
+                    "coverage": "数据覆盖率",
+                    "provider": "数据提供者",
+                    "result": "请求结果",
+                    "duration_ms": "耗时（毫秒）",
+                    "errors": "错误信息",
+                    "data": "数据内容",
+                    "message": "说明信息",
+                    # 市场阶段上下文内部字段
+                    "timezone": "时区",
+                    "tz_label": "时区标签",
+                    "tz_abbr": "时区缩写",
+                    "utc_offset_minutes": "UTC偏移分钟",
+                    "window_id": "窗口标识",
+                    # 大盘结构与热点内部字段
+                    "schema_version": "数据结构版本",
+                    "theme_rankings": "题材排名",
+                    "concept_rankings": "概念排名",
+                    "stock_market_position": "个股市场定位",
+                    "related_boards": "关联板块",
+                    "stock_role": "个股角色",
+                    "risk_tags": "风险标签",
+                    "missing_fields": "缺失字段",
+                    # 数据包摘要内部字段
+                    "pack_version": "数据包版本",
+                    "warnings": "告警信息",
+                    "missing_reason": "缺失原因",
+                    "intraday_realtime_overlay": "盘中实时叠加",
                 }
 
                 def _翻译键名(数据, _映射=_字段映射):
